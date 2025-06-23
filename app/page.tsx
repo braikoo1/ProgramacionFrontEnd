@@ -1,5 +1,5 @@
 'use client'
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 interface Persona{
   nombre : string
@@ -11,8 +11,18 @@ let InitialStatePersona:Persona ={
 }
 
 export default function Home() {
+  const miStorage = window.localStorage
   const [persona, setPersona] = useState(InitialStatePersona)
+  const [personas,setPersonas] = useState<Persona[]>([])
   const [eNombre,setENombre] = useState("")
+  useEffect(()=>{
+    let listadoStr = miStorage.getItem("personas")
+    if (listadoStr != null){
+      let listado = JSON.parse(listadoStr)
+      setPersonas(listado)
+  }
+},[])
+
   const handlePersona = (name:string,value:string)=>{
     //validaciones
     if (persona.nombre.length < 3){
@@ -21,7 +31,12 @@ export default function Home() {
     setPersona(
       {...persona,[name]:value}
     )
-  }
+  };
+
+  const handleRegistrar = ()=>(
+    miStorage.setItem("personas",JSON.stringify([...personas,persona]))
+
+  )
 
   
   return (
@@ -42,7 +57,8 @@ export default function Home() {
         placeholder="Apellido"
         onChange={(e)=>handlePersona(e.currentTarget.name,e.currentTarget.value)}/><br/>
       <span></span><br/>
-      <button>Registrar</button>
+      <button
+        onClick ={()=>handleRegistrar()}>Registrar</button>
     </form>
   )
 }
